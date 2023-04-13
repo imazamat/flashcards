@@ -1,0 +1,36 @@
+body:not(.modal-open) {
+  padding-right: 5% !important;
+}
+
+body:not(.modal-close) {
+  padding-right: 5% !important;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 15px;
+}
+
+.card-body {
+  display: grid;
+  grid-template-rows: 1fr 2fr 1fr;
+  grid-gap: 15px;
+}
+
+
+@media (max-width:576px) {
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 15px;
+  }
+}
+
+@media (min-width:576px) and (max-width:798px) {
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 15px;
+  }
+}
