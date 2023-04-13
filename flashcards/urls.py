@@ -20,4 +20,5 @@ urlpatterns = [
     path('login/', login_, name='login'),
     path('logout/', logout_, name='logout'),
     path('register/', register_, name='register'),
+    path('get-quote/', get_quote, name='get-quote'),
 ]

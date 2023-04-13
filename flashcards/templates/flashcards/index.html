@@ -31,7 +31,8 @@
   <div class="d-flex justify-content-between align-items-center">
     {% if request.user.is_authenticated %}
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Create</button>
-      <div class="dropdown">
+      <div class="dropdown d-flex align-items-center">
+        <p class="text-primary" style="margin-right: 10px; margin-bottom: 0;">{{ request.user.username }}</p>
         <a
           class="dropdown-toggle d-flex align-items-center hidden-arrow"
           href="#"
@@ -40,20 +41,19 @@
           data-mdb-toggle="dropdown"
           aria-expanded="false"
         >
-          <img
-            src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"
+        <img
+            src="{% static 'flashcards\img\avatar.webp' %}"
             class="rounded-circle"
             height="36px"
-            alt="Black and White Portrait of a Man"
             loading="lazy"
-          />
+        />
         </a>
         <ul
           class="dropdown-menu dropdown-menu-end"
           aria-labelledby="navbarDropdownMenuAvatar"
         >
           <li>
-            <a class="dropdown-item" href="#">My profile</a>
+            <a class="dropdown-item" href="#">My Profile</a>
           </li>
           <li>
             <a class="dropdown-item" href="#">Settings</a>
@@ -65,7 +65,7 @@
       </div>
     {% else %}
       <h6 class="m-0 text-primary">Wanna create your own flashcards?
-        <a class="text-info" href="{% url 'login' %}">Sign up</a>
+        <a class="text-info" href="{% url 'login' %}">Sign in</a>
       </h6>
     {% endif %}
 
@@ -85,15 +85,16 @@
                 style="height: 40px; margin-bottom: 5px;" pattern="\S.*\S" required>
                 <div class="mt-2">
                   <div class="form-check">
-                    <input class="form-check-input" type="radio" name="type" value="0" id="flexRadioDefault1"
+                    <input class="form-check-input" type="radio" name="type" value="public" id="flexRadioDefault1"
                       required>
                     <label class="form-check-label" for="flexRadioDefault1">
                       Public (visible for everyone)
                     </label>
+                    <p class="text-warning">Note: you need to create at least 10 flashcards to see it public</p>
                   </div>
                   <input hidden name="owner_id" value="{{ request.user.id }}">
                   <div class="form-check">
-                    <input class="form-check-input" type="radio" name="type" value="1" id="flexRadioDefault2">
+                    <input class="form-check-input" type="radio" name="type" value="private" id="flexRadioDefault2">
                     <label class="form-check-label" for="flexRadioDefault2">
                       Private (visible only for you)
                     </label>
@@ -122,7 +123,20 @@
   {% endif %}
 
   <br>
-  <div class="input-group rounded">
+  <div class="input-group rounded d-flex align-items-center">
+    <div class="dropdown d-flex align-items-center input-group-text border-0">
+      <a
+        class="dropdown-toggle d-flex align-items-center hidden-arrow"
+        href="#"
+        id="navbarDropdownMenuAvatar1"
+        role="button"
+        data-mdb-toggle="dropdown"
+        aria-expanded="false"
+      >
+      <i class="fa-solid fa-sliders"></i>
+      </a>
+    </div>
+
     <input id="search_here" type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-icon"/>
     <span class="input-group-text border-0" id="search-icon">
       <i class="fas fa-search"></i>
@@ -133,6 +147,116 @@
 
   <div id="box">
     {% if collections %}
+    <div class="cards">
+      {% for collection in collections %}
+      <!-- displaying collections -->
+
+      <div class="card" style="margin: 0 15px;">
+        <div class="card-body text-center">
+          <div class="header">
+            <h4 class="text-center">
+              <a href="{{ collection.id }}/">{{ collection.name | title }} <i class="fas fa-angle-right"></i></a>
+            </h4>
+            <hr>
+          </div>
+          <div>
+            <p class="card-text">Flashcards: {{ collection.flashcard_set.count }}</p>
+            <p class="card_text">{{ collection.created_at | date:"d M Y" }}</p>
+            <p class="card-text">{{ collection.created_at | time:"H:i" }}</p>
+          </div>
+          <div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <a class="text-info" href="#">
+                {% if collection.owner.is_superuser %}
+                  👽
+                {% else %}
+                  <i class="far fa-user"></i>
+                {% endif %}
+                {{ collection.owner.username }}</a>
+              {% if request.user.is_authenticated and request.user.id == collection.owner_id %}
+              <div>
+                <a href="/edit/{{ collection.id }}" class="btn edit" data-toggle="modal"
+                data-target="#edit{{ collection.id }}">
+                <i class="fa-solid fa-pen-to-square" style="color: #587ef4;"></i>
+              </a>
+              <a href="/delete/{{ collection.id }}" class="btn delete">
+                <i class="fa-solid fa-trash-can" style="color: #ff5353;"></i>
+              </a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- edit and delete modals for collections -->
+      <div class="modal fade" id="edit{{ collection.id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form action="/edit/{{ collection.id }}/" method="POST">
+              <div class="modal-header border-0">
+                <h5 class="modal-title" id="exampleModalLabel">Edit collection</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                {% csrf_token %}
+                <input type="text" name="name" value="{{ collection.name }}" class="w-100 rounded border"
+                  style="height: 40px;" pattern="\S.*\S" required>
+                  <div class="mt-2">
+                    <div class="form-check">
+                      <input {% if collection.type == 'public' %} checked {% endif %} class="form-check-input" type="radio" name="type" value="public" id="flexRadio1{{ collection.id }}"
+                        required>
+                      <label class="form-check-label" for="flexRadio1{{ collection.id }}">
+                        Public (visible for everyone)
+                      </label>
+                    </div>
+                    <input hidden name="owner_id" value="{{ request.user.id }}">
+                    <div class="form-check">
+                      <input {% if collection.type == 'private' %} checked {% endif %} class="form-check-input" type="radio" name="type" value="private" id="flexRadio{{ collection.id }}">
+                      <label class="form-check-label" for="flexRadio{{ collection.id }}">
+                        Private (visible only for you)
+                      </label>
+                    </div>
+                  </div>
+              </div>
+              <div class="modal-footer border-0">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Update</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="text-info">No collections yet</p>
+    {% endif %}
+  </div>
+
+  <br>
+
+  <script>
+    const data='{{ qs_json }}'
+
+    const rdata=JSON.parse(data.replace(/&quot;/g, '"'))
+
+    const input = document.getElementById('search_here')
+
+    let filteredArr = []
+
+    input.addEventListener('keyup', (e)=>{
+      box.innerHTML = ""
+      filteredArr = rdata.filter(collection => collection['name'].includes(e.target.value))
+
+      if(input.value.length === 0){
+        rdata.map(item => {
+          box.innerHTML = `{% if collections %}
     <div class="cards">
       {% for collection in collections %}
       <!-- displaying collections -->
@@ -187,7 +311,7 @@
                   style="height: 40px;" pattern="\S.*\S" required>
                   <div class="mt-2">
                     <div class="form-check">
-                      <input {% if collection.type == '0' %} checked {% endif %} class="form-check-input" type="radio" name="type" value="0" id="flexRadio1{{ collection.id }}"
+                      <input {% if collection.type == 'public' %} checked {% endif %} class="form-check-input" type="radio" name="type" value="public" id="flexRadio1{{ collection.id }}"
                         required>
                       <label class="form-check-label" for="flexRadio1{{ collection.id }}">
                         Public (visible for everyone)
@@ -195,7 +319,7 @@
                     </div>
                     <input hidden name="owner_id" value="{{ request.user.id }}">
                     <div class="form-check">
-                      <input {% if collection.type == '1' %} checked {% endif %} class="form-check-input" type="radio" name="type" value="1" id="flexRadio{{ collection.id }}">
+                      <input {% if collection.type == 'private' %} checked {% endif %} class="form-check-input" type="radio" name="type" value="private" id="flexRadio{{ collection.id }}">
                       <label class="form-check-label" for="flexRadio{{ collection.id }}">
                         Private (visible only for you)
                       </label>
@@ -215,30 +339,12 @@
     </div>
     {% else %}
       <p class="text-info">No collections yet</p>
-    {% endif %}
-  </div>
-
-  <br>
-
-  <script>
-    const data='{{ qs_json }}'
-    console.log(data)
-
-    const rdata=JSON.parse(data.replace(/&quot;/g, '"'))
-    console.log(rdata)
-
-    const input = document.getElementById('search_here')
-    console.log(input)
-
-    let filteredArr = []
-
-    input.addEventListener('keyup', (e)=>{
-      box.innerHTML = ""
-      filteredArr = rdata.filter(collection => collection['name'].includes(e.target.value))
-      console.log(filteredArr)
-      if (filteredArr.length > 0){
+    {% endif %}`
+        })
+      }
+      else if (filteredArr.length > 0){
         filteredArr.map(collection=>{
-          box.innerHTML += `<a href="/${collection['id']}/">${collection['name']}</a> <br>`
+          box.innerHTML += `<a class="text-capitalize" href="/${collection['id']}/">${collection['name']}</a> <br>`
         })
       } else {
         box.innerHTML = "<p>No collections found</p>"

@@ -3,14 +3,15 @@ from django.contrib.auth.models import User
 
 
 class Collection(models.Model):
-    COLLECTION_TYPE_PUBLIC = '0'
-    COLLECTION_TYPE_PRIVATE = '1'
+    COLLECTION_TYPE_PUBLIC = 'public'
+    COLLECTION_TYPE_PRIVATE = 'private'
     COLLECTION_TYPE_CHOICES = (
         (COLLECTION_TYPE_PUBLIC, 'Public'),
         (COLLECTION_TYPE_PRIVATE, 'Private'),
     )
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=7, choices=COLLECTION_TYPE_CHOICES, default=COLLECTION_TYPE_PRIVATE)
+    state = models.BooleanField(default=False, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
@@ -48,3 +49,17 @@ class FlashCard(models.Model):
         self.word = self.word.strip().lower()
         self.definition = self.definition.strip().lower()
         return super(FlashCard, self).save(*args, **kwargs)
+
+
+class Quote(models.Model):
+    text = models.TextField()
+    author = models.CharField(max_length=255)
+    likes = models.ManyToManyField(User, related_name='quote_like')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+    @property
+    def get_number_of_likes(self):
+        return self.likes.count()
+
+    def __str__(self):
+        return self.author
