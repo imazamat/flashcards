@@ -1,0 +1,71 @@
+/* @import url("https://fonts.googleapis.com/css?family=Varela+Round"); */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #f6f9fd;
+  font-family: "Varela Round", sans-serif;
+}
+
+.container {
+  margin: auto;
+  padding: 30px 40px;
+  width: auto;
+}
+
+dl card {
+  color: #fff;
+  font-size: 2em;
+  position: relative;
+  text-align: center;
+  border-radius: 3px;
+  min-height: 370px;
+  transition: all 0.5s ease;
+  transform-style: preserve-3d;
+}
+dl card dt, dl card dd {
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  border-radius: inherit;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 40px;
+}
+dl card dt {
+  z-index: 2;
+  transform: rotateX(0deg);
+}
+dl card dd {
+  background: #62CDFF;
+  transform: rotateX(180deg);
+  margin: 0;
+}
+dl card dd:before {
+  content: attr(part) "";
+  font-style: italic;
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+dl [class*=-slide] {
+  transition: all 0.5s ease;
+  transform: scale(1);
+  perspective: 1500px;
+  margin: 40px 25px;
+  outline: none;
+  opacity: 0.8;
+}
+dl [class*=-current] {
+  transform: scale(1.1);
+  cursor: pointer;
+  opacity: 1;
+}
+dl [class*=-current].flip card {
+  transform: rotateX(180deg);
+}
