@@ -1,4 +1,4 @@
-/* @import url("https://fonts.googleapis.com/css?family=Varela+Round"); */
+@import url("https://fonts.googleapis.com/css?family=Varela+Round");
 * {
   box-sizing: border-box;
 }
@@ -13,6 +13,18 @@ body {
   padding: 30px 40px;
   width: auto;
 }
+.container h1 {
+  text-align: center;
+  color: #346eda;
+  font-weight: normal;
+  margin-bottom: 0px;
+}
+.container h2 {
+  text-align: center;
+  color: rgba(34, 87, 185, 0.3);
+  font-weight: normal;
+  margin-top: 5px;
+}
 
 dl card {
   color: #fff;
@@ -20,7 +32,7 @@ dl card {
   position: relative;
   text-align: center;
   border-radius: 3px;
-  min-height: 370px;
+  min-height: 360px;
   transition: all 0.5s ease;
   transform-style: preserve-3d;
 }
@@ -39,6 +51,7 @@ dl card dt, dl card dd {
   padding: 40px;
 }
 dl card dt {
+  background: #5f8de2;
   z-index: 2;
   transform: rotateX(0deg);
 }

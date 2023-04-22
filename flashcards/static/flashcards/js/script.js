@@ -1,10 +1,11 @@
 const wrapper = document.querySelector(".wrapper"),
 searchInput = wrapper.querySelector("input"),
-volume = wrapper.querySelector(".word i"),
+volume_uk = wrapper.querySelector(".word .uk"),
+volume_us = wrapper.querySelector(".word .us"),
 infoText = wrapper.querySelector(".info-text"),
 synonyms = wrapper.querySelector(".synonyms .list"),
 removeIcon = wrapper.querySelector(".search span");
-let audio;
+let audio_uk;
 
 function data(result, word){
     if(result.title){
@@ -17,7 +18,8 @@ function data(result, word){
         document.querySelector(".word span").innerText = phontetics;
         document.querySelector(".meaning span").innerText = definitions.definition;
         document.querySelector(".example span").innerText = definitions.example;
-        audio = new Audio(result[0].phonetics[0].audio);
+        audio_uk = new Audio(result[0].phonetics[0].audio);
+        audio_us = new Audio(result[0].phonetics[1].audio);
 
         if(definitions.synonyms[0] == undefined){
             synonyms.parentElement.style.display = "none";
@@ -55,13 +57,22 @@ searchInput.addEventListener("keyup", e =>{
     }
 });
 
-volume.addEventListener("click", ()=>{
-    volume.style.color = "#4D59FB";
-    audio.play();
+volume_uk.addEventListener("click", ()=>{
+    volume_uk.style.color = "#4D59FB";
+    audio_uk.play();
     setTimeout(() =>{
-        volume.style.color = "#999";
+        volume_uk.style.color = "#999";
     }, 800);
 });
+
+volume_us.addEventListener("click", ()=>{
+    volume_us.style.color = "#4D59FB";
+    audio_us.play();
+    setTimeout(() =>{
+        volume_us.style.color = "#999";
+    }, 800);
+});
+
 
 removeIcon.addEventListener("click", ()=>{
     searchInput.value = "";
@@ -69,4 +80,33 @@ removeIcon.addEventListener("click", ()=>{
     wrapper.classList.remove("active");
     infoText.style.color = "#9A9A9A";
     infoText.innerHTML = "Type any existing word and press enter to get meaning, example, synonyms, etc.";
+});
+
+
+var definitionList = $('dl');
+
+definitionList.on('init', function(){
+  $('.slick-current', this).addClass('flip');
+})
+
+definitionList.slick({
+  centerMode: true,
+  arrows: false,
+  centerPadding: '20px',
+  slidesToShow: 3,
+  responsive: [{
+      breakpoint: 950,
+      settings: {
+        slidesToShow: 1,
+        centerPadding: '10px'
+      }
+  }]
+});
+
+definitionList.on('beforeChange',function(){
+  $('.slick-slide', this).removeClass('flip')
+});
+
+definitionList.on('click', '.slick-current', function(){
+  $(this).toggleClass('flip')
 });
