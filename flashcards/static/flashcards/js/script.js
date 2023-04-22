@@ -1,7 +1,6 @@
 const wrapper = document.querySelector(".wrapper"),
 searchInput = wrapper.querySelector("input"),
 volume_uk = wrapper.querySelector(".word .uk"),
-volume_us = wrapper.querySelector(".word .us"),
 infoText = wrapper.querySelector(".info-text"),
 synonyms = wrapper.querySelector(".synonyms .list"),
 removeIcon = wrapper.querySelector(".search span");
@@ -18,8 +17,6 @@ function data(result, word){
         document.querySelector(".word span").innerText = phontetics;
         document.querySelector(".meaning span").innerText = definitions.definition;
         document.querySelector(".example span").innerText = definitions.example;
-        audio_uk = new Audio(result[0].phonetics[0].audio);
-        audio_us = new Audio(result[0].phonetics[1].audio);
 
         if(definitions.synonyms[0] == undefined){
             synonyms.parentElement.style.display = "none";
@@ -30,6 +27,14 @@ function data(result, word){
                 let tag = `<span onclick="search('${definitions.synonyms[i]}')">${definitions.synonyms[i]},</span>`;
                 tag = i == 4 ? tag = `<span onclick="search('${definitions.synonyms[i]}')">${definitions.synonyms[4]}</span>` : tag;
                 synonyms.insertAdjacentHTML("beforeend", tag);
+            }
+        }
+
+        // loop for getting audio
+        for (let i = 0; i < result[0]['phonetics'].length; i++) {
+            if (result[0].phonetics[i].audio.length != 0) {
+                audio_uk = new Audio(result[0].phonetics[i].audio);
+                break;
             }
         }
     }
@@ -62,14 +67,6 @@ volume_uk.addEventListener("click", ()=>{
     audio_uk.play();
     setTimeout(() =>{
         volume_uk.style.color = "#999";
-    }, 800);
-});
-
-volume_us.addEventListener("click", ()=>{
-    volume_us.style.color = "#4D59FB";
-    audio_us.play();
-    setTimeout(() =>{
-        volume_us.style.color = "#999";
     }, 800);
 });
 
