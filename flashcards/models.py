@@ -19,7 +19,7 @@ class Collection(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.name = self.name.capitalize()
+        self.name = self.name.lower()
         return super(Collection, self).save(*args, **kwargs)
 
 
