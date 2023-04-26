@@ -4,8 +4,8 @@ from pyexpat.errors import messages
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers import serialize
 from django.forms import model_to_dict
-from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import *
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
@@ -236,18 +236,28 @@ def get_quote(request):
         data["liked"] = liked
         data["number_of_likes"] = quote.get_number_of_likes
         data["created_by"] = quote.created_by.username
-        data["created_by_id"] = quote.created_by.id
+        data["quote_id"] = quote.id
         data["is_superuser"] = quote.created_by.is_superuser
 
         return JsonResponse(data, safe=False)
 
 
-def quote_like(request, id):
+def quote_like(request):
     if request.method == "POST":
-        quote = get_object_or_404(Quote, id=request.POST.get("quote_id"))
+        quote_id = request.POST.get('quote_id')
+        quote = get_object_or_404(Quote, id=quote_id)
         if quote.likes.filter(id=request.user.id).exists():
             quote.likes.remove(request.user)
         else:
             quote.likes.add(request.user)
 
-        return HttpResponseRedirect()
+        liked = False
+        if quote.likes.filter(id=request.user.id).exists():
+            liked = True
+
+        data = model_to_dict(quote, fields=[field.name for field in quote._meta.fields])
+        data["number_of_likes"] = quote.get_number_of_likes
+        data["created_by"] = quote.created_by.username
+        data['liked'] = liked
+
+        return JsonResponse(data, safe=False)

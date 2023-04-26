@@ -35,6 +35,8 @@ function data(result, word){
             if (result[0].phonetics[i].audio.length != 0) {
                 audio_uk = new Audio(result[0].phonetics[i].audio);
                 break;
+            } else {
+                audio_uk = new Audio(null)
             }
         }
     }
