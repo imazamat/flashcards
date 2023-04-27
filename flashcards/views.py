@@ -23,14 +23,13 @@ def index(request):
     ctx = {}
 
     if request.method == "GET":
-        # collections1 = Collection.objects.annotate(num_collections=Count("flashcard")).filter(num_collections__gt=5)
-        # print(collections1)
+
         if request.user.is_authenticated:
-            collections = Collection.objects.all().order_by("-created_at")
+            collections = Collection.objects.filter(owner_id=request.user.id).order_by("-created_at")
         else:
             collections = Collection.objects.annotate(
                 num_collections=Count("flashcard")
-            ).filter(num_collections__gt=0, type="public")
+            ).filter(num_collections__gt=9, type="public")
 
         qs_json = json.dumps(
             list(collections.values("id", "name")), cls=DjangoJSONEncoder
@@ -55,21 +54,9 @@ def index(request):
             return redirect("/")
         else:
             collections = Collection.objects.all().order_by("-created_at")
-            print("rendered")
             return render(
                 request, "flashcards/index.html", {"collections": collections}
             )
-
-    if request.method == "GET":
-        if request.user.is_authenticated:
-            collections = Collection.objects.filter(owner_id=request.user.id).order_by(
-                "-created_at"
-            )
-    return render(
-        request,
-        "flashcards/my-collections.html",
-        {"collections": collections},
-    )
 
 
 @login_required(login_url="login")
